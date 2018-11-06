@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models, _
-from openerp.exceptions import UserError, ValidationError
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import *
 
@@ -15,7 +15,7 @@ except:
     print("Cannot import  etree")
 
 # from lxml.etree import Element, SubElement
-from openerp.tools.translate import _
+from odoo.tools.translate import _
 
 # try:
 #     import shutil
