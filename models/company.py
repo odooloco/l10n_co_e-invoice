@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models, _
+from odoo import api, fields, models, _
 
 class Company(models.Model):
     _inherit = 'res.company'
-    _name = 'res.company'
+    #_name = 'res.company'
 
     trade_name = fields.Char(string="Razón social", required=True, default="")
     digital_certificate = fields.Text(string="Certificado digital público", required=True, default="")
