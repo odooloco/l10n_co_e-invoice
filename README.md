@@ -4,7 +4,6 @@
    :alt: License: AGPL-3
 
 
-====================
 Colombian e-invoice
 ===================
 
