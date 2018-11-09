@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
 <!-- action_invoice_sent     -->
     <data>
 
@@ -21,7 +21,7 @@
                     </page>
                 </xpath>
             </field>
-    </record>
+        </record>
 
 
         <!--Email dian template -->
@@ -32,7 +32,7 @@
             <field name="partner_to">${object.partner_id.id}</field>
             <field name="model_id" ref="account.model_account_invoice"/>
             <field name="auto_delete" eval="True"/>
-            <field name="report_template" ref="account_invoice_dian"/>
+            <!-- <field name="report_template" ref="account_invoice_dian"/> -->
             <field name="report_name">${object.diancode_id.dian_code}</field>
             <field name="lang">${object.partner_id.lang}</field>
             <field name="body_html"><![CDATA[
@@ -98,4 +98,4 @@
     </data>
 
 
-</openerp>
+</odoo>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openerp>
+<odoo>
 
 
     <record id="sequence_view_extended" model="ir.ui.view">
@@ -14,4 +14,4 @@
     </record>
 
 
-</openerp>
+</odoo>

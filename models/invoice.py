@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models, _
+from odoo import api, fields, models, _
 
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
-    _name = 'account.invoice'
+    #_name = 'account.invoice'
 
     diancode_id = fields.Many2one('dian.document', string="Código DIAN", readonly=True)
 
