@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2018 Dominic Krimmer, dominic.krimmer@gmail.com
 # Copyright 2018 https://github.com/johnsh, sebastian80_23@hotmail.com
-# Copyright 2018 https://github.com/guillermm, EXA Auto Parts S.A.S
+# Copyright 2018 https://github.com/exaap, EXA Auto Parts S.A.S
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 {
     'name': "Colombian e-invoice",
