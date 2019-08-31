@@ -11,6 +11,7 @@ pprint==0.1
 pybase64==0.4.0
 pycparser==2.19
 pycrypto==2.6.1
+pygobject==3.26.1
 pyOpenSSL==18.0.0
 pypng==0.0.18
 PyQRCode==1.2.1
