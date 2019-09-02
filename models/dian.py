@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 try:
     from lxml import etree
 except:
-    print("Cannot import  etree")
+    _logger.warning("Cannot import  etree")
 
 # from lxml.etree import Element, SubElement
 from odoo.tools.translate import _
@@ -208,12 +208,12 @@ class DianDocument(models.Model):
             try:
                 dict_response_dian = self._request_document_dian_soap(by_validate_doc, dict_dian_constants)
             except:
-                print '\n\n\n'
+                print('\n\n\n')
                 print("No existe comunicación con la DIAN")
                 return
             #dict_response_dian = self._request_document_dian_soap(by_validate_doc, dict_dian_constants)
             if dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:CodigoTransaccion'] != '300':            
-                print 'paso a'
+                print('paso a')
                 by_validate_doc.response_document_dian = dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:DocumentoRecibido']['ns3:DatosBasicosDocumento']['ns3:EstadoDocumento']
                 by_validate_doc.transaction_code = dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:CodigoTransaccion']
                 #dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:DocumentoRecibido']['ns3:DatosBasicosDocumento']['ns3:EstadoDocumento']
@@ -228,7 +228,7 @@ class DianDocument(models.Model):
                         message += comment.text +  '\n'
                 by_validate_doc.response_message_dian = message
                 if dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:DocumentoRecibido']['ns3:DatosBasicosDocumento']['ns3:EstadoDocumento'] == '7200002':
-                    print 'paso b'
+                    print('paso b')
                     account_invoice = self.env['account.invoice'].search([('id', '=', by_validate_doc.document_id.id)])
                     account_invoice.write({'diancode_id' : by_validate_doc.id})
                     plantilla_correo = self.env.ref('l10n_co_e-invoice.email_template_edi_invoice_dian', False)
@@ -236,17 +236,17 @@ class DianDocument(models.Model):
                     by_validate_doc.date_email_send = fields.Datetime.now()
                     by_validate_doc.write({'state' : 'exitoso', 'resend' : False})
                 else:
-                    print 'paso c'
+                    print('paso c')
                     if dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:DocumentoRecibido']['ns3:DatosBasicosDocumento']['ns3:EstadoDocumento'] in  ('7200001','7200003'):
-                        print 'paso d'
+                        print('paso d')
                         by_validate_doc.write({'state' : 'por_validar', 'resend' : False})
                     elif dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:DocumentoRecibido']['ns3:DatosBasicosDocumento']['ns3:EstadoDocumento'] == '7200004':
-                        print 'paso e'
+                        print('paso e')
                         #by_validate_doc.write({'state' : 'rechazado', 'resend' : True})
                     elif dict_response_dian['dict_response_dian']['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns3:ConsultaResultadoValidacionDocumentosRespuesta']['ns3:DocumentoRecibido']['ns3:DatosBasicosDocumento']['ns3:EstadoDocumento'] == '7200005':
-                        print 'paso f'
+                        print('paso f')
                         by_validate_doc.write({'state' : 'error', 'resend' : True})
-                print 'paso g'
+                print('paso g')
 
 
         #Mikel    
@@ -373,7 +373,7 @@ class DianDocument(models.Model):
 
             #Genera la firma en el documento xml
             # print '\n\n\n'
-            print 'data_xml_document sin firma: ', data_xml_document
+            print('data_xml_document sin firma: ', data_xml_document)
             data_xml_signature = self._generate_signature(data_xml_document, template_signature_data_xml, dian_constants, data_constants_document)
 
             _logger.info("FIRMA")
@@ -381,9 +381,9 @@ class DianDocument(models.Model):
 
             # Construye el documento XML con firma
             data_xml_document = '<?xml version="1.0" encoding="UTF-8"?>' + self._generate_data_document_xml(template_basic_data_xml, dian_constants, data_constants_document, data_taxs_xml, data_lines_xml, CUFE, data_xml_signature, data_credit_lines_xml)
-            print '\n\n\n'
+            print('\n\n\n')
             # print 'data_xml_signature: ', data_xml_signature
-            print 'data_xml_document con firma: ', data_xml_document
+            print('data_xml_document con firma: ', data_xml_document)
             # Generar codigo DIAN
             doc_send_dian.dian_code = data_constants_document['InvoiceID']
             # Generar nombre del archvio xml
@@ -445,8 +445,8 @@ class DianDocument(models.Model):
         data_xml_SigningTime = ''
         data_xml_SignatureValue = ''
         # Generar clave de referencia 0 para la firma del documento (referencia ref0)
-        print '\n\n\n'
-        print 'data_xml_document sin firma: ', data_xml_document  
+        print('\n\n\n')
+        print('data_xml_document sin firma: ', data_xml_document)  
         data_xml_signature_ref_zero = self._generate_signature_ref0(data_xml_document)
         # Generar certificado publico para la firma del documento en el elemento keyinfo 
         data_public_certificate_base = dian_constants['Certificate']
@@ -455,8 +455,8 @@ class DianDocument(models.Model):
                                         data_xml_signature_ref_zero, data_public_certificate_base, 
                                         data_xml_keyinfo_base, data_xml_politics, 
                                         data_xml_SignedProperties_base, data_xml_SigningTime, dian_constants, data_xml_SignatureValue)
-        print '\n\n\n'
-        print 'data_xml_signature 1 ref1: ', data_xml_signature
+        print('\n\n\n')
+        print('data_xml_signature 1 ref1: ', data_xml_signature)
         # Generar clave de referencia 1 para la firma del documento (referencia keyinfo)
         data_xml_keyinfo_base = self._generate_signature_ref1(data_xml_signature)
         # Generar clave de politica de firma para la firma del documento (SigPolicyHash)
@@ -468,8 +468,8 @@ class DianDocument(models.Model):
                                         data_xml_signature_ref_zero, data_public_certificate_base, 
                                         data_xml_keyinfo_base, data_xml_politics, 
                                         data_xml_SignedProperties_base, data_xml_SigningTime, dian_constants, data_xml_SignatureValue)
-        print '\n\n\n'
-        print 'data_xml_signature 2 ref2: ', data_xml_signature
+        print('\n\n\n')
+        print('data_xml_signature 2 ref2: ', data_xml_signature)
         # Generar clave de referencia 2 para la firma del documento (referencia SignedProperties)
         data_xml_SignedProperties_base = self._generate_signature_ref2(data_xml_signature)
         # Obtener la hora de Colombia desde la hora del pc
@@ -479,19 +479,19 @@ class DianDocument(models.Model):
                                         data_xml_signature_ref_zero, data_public_certificate_base, 
                                         data_xml_keyinfo_base, data_xml_politics, 
                                         data_xml_SignedProperties_base, data_xml_SigningTime, dian_constants, data_xml_SignatureValue)
-        print '\n\n\n'
-        print 'data_xml_signature 3 SignatureValue: ', data_xml_signature
+        print('\n\n\n')
+        print('data_xml_signature 3 SignatureValue: ', data_xml_signature)
         # Aplicar la firma SignaturValue
         data_xml_SignatureValue = self._generate_SignatureValue(data_xml_signature, dian_constants['document_repository'])
-        print '\n\n\n'
-        print 'data_xml_SignatureValue: ', data_xml_SignatureValue
+        print('\n\n\n')
+        print('data_xml_SignatureValue: ', data_xml_SignatureValue)
         # 4ta. actualización de firma 
         data_xml_signature = self._update_signature(template_signature_data_xml, data_xml_document, 
                                         data_xml_signature_ref_zero, data_public_certificate_base, 
                                         data_xml_keyinfo_base, data_xml_politics, 
                                         data_xml_SignedProperties_base, data_xml_SigningTime, dian_constants, data_xml_SignatureValue)
-        print '\n\n\n'
-        print 'data_xml_signature 4 total: ', data_xml_signature
+        print('\n\n\n')
+        print('data_xml_signature 4 total: ', data_xml_signature)
         #print 'ssss', ssss
         # Id URI Falta anilizar si es con id distintos por xml
         #template_signature_data_xml_id = self._template_signature_data_xml_id()
@@ -1324,16 +1324,16 @@ class DianDocument(models.Model):
         validacion = crypto.verify(pem, signature, data_xml_signature, 'sha256')
 
 
-        print '\n\n\n'
-        print 'data_xml_signature SignatureValue: ', data_xml_signature
-        print '\n'
-        print 'key SignatureValue: ', key
-        print '\n'
-        print 'signature SignatureValue: ', signature
-        print '\n'
-        print 'SignatureValue SignatureValue: ', SignatureValue
-        print '\n'
-        print 'validacion: ', validacion
+        print('\n\n\n')
+        print('data_xml_signature SignatureValue: ', data_xml_signature)
+        print('\n')
+        print('key SignatureValue: ', key)
+        print('\n')
+        print('signature SignatureValue: ', signature)
+        print('\n')
+        print('SignatureValue SignatureValue: ', SignatureValue)
+        print('\n')
+        print('validacion: ', validacion)
 
 
         # print 'SSSSS: ', SSSS
@@ -2006,13 +2006,13 @@ class DianDocument(models.Model):
         xml_sin_firma = """<?xml version="1.0" encoding="UTF-8"?><fe:Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:clm54217="urn:un:unece:uncefact:codelist:specification:54217:2001" xmlns:clm66411="urn:un:unece:uncefact:codelist:specification:66411:2001" xmlns:clmIANAMIMEMediaType="urn:un:unece:uncefact:codelist:specification:IANAMIMEMediaType:2003" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:fe="http://www.dian.gov.co/contratos/facturaelectronica/v1" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2" xmlns:sts="http://www.dian.gov.co/contratos/facturaelectronica/v1/Structures" xmlns:udt="urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dian.gov.co/contratos/facturaelectronica/v1 http://www.dian.gov.co/micrositios/fac_electronica/documentos/XSD/r0/DIAN_UBL.xsd urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2 http://www.dian.gov.co/micrositios/fac_electronica/documentos/common/UnqualifiedDataTypeSchemaModule-2.0.xsd urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2 http://www.dian.gov.co/micrositios/fac_electronica/documentos/common/UBL-QualifiedDatatypes-2.0.xsd"><ext:UBLExtensions><ext:UBLExtension><ext:ExtensionContent><sts:DianExtensions><sts:InvoiceControl><sts:InvoiceAuthorization>9000000032442243</sts:InvoiceAuthorization><sts:AuthorizationPeriod><cbc:StartDate>2018-10-03</cbc:StartDate><cbc:EndDate>2018-12-31</cbc:EndDate></sts:AuthorizationPeriod><sts:AuthorizedInvoices><sts:Prefix>PRUE</sts:Prefix><sts:From>980000000</sts:From><sts:To>985000000</sts:To></sts:AuthorizedInvoices></sts:InvoiceControl><sts:InvoiceSource><cbc:IdentificationCode listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe" listSchemeURI="urn:oasis:names:specification:ubl:codelist:gc:CountryIdentificationCode-2.0">CO</cbc:IdentificationCode></sts:InvoiceSource><sts:SoftwareProvider><sts:ProviderID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">860062288</sts:ProviderID><sts:SoftwareID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">b28bc5bb-8a74-46a7-bb16-d3e25ca58358</sts:SoftwareID></sts:SoftwareProvider><sts:SoftwareSecurityCode schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">8a1a3aefcb472f961dbd803770001520f4e4a764d850d150bef9d6173a3d13ded68513092639a767aa76e6fb233bbc71</sts:SoftwareSecurityCode></sts:DianExtensions></ext:ExtensionContent></ext:UBLExtension><ext:UBLExtension><ext:ExtensionContent></ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions><cbc:UBLVersionID>UBL 2.0</cbc:UBLVersionID><cbc:ProfileID>DIAN 1.0</cbc:ProfileID><cbc:ID>PRUE980000117</cbc:ID><cbc:UUID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">963f8f248afe8ae9888acc4594c12804544b8355</cbc:UUID><cbc:IssueDate>2018-10-22</cbc:IssueDate><cbc:IssueTime>16:42:03</cbc:IssueTime><cbc:InvoiceTypeCode listAgencyID="195" listAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)" listSchemeURI="http://www.dian.gov.co/contratos/facturaelectronica/v1/InvoiceType">1</cbc:InvoiceTypeCode><cbc:Note></cbc:Note><cbc:DocumentCurrencyCode>COP</cbc:DocumentCurrencyCode><fe:AccountingSupplierParty><cbc:AdditionalAccountID>2</cbc:AdditionalAccountID><fe:Party><cac:PartyIdentification><cbc:ID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)" schemeID="31">860062288</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Plastinorte S.A.S</cbc:Name></cac:PartyName><fe:PhysicalLocation><fe:Address><cbc:Department>BOGOTA, D.C.</cbc:Department><cbc:CitySubdivisionName>BOGOTA</cbc:CitySubdivisionName><cbc:CityName>BOGOTA</cbc:CityName><cac:AddressLine><cbc:Line>Cra. 25 #67-34</cbc:Line></cac:AddressLine><cac:Country><cbc:IdentificationCode>CO</cbc:IdentificationCode></cac:Country></fe:Address></fe:PhysicalLocation><fe:PartyTaxScheme><cbc:TaxLevelCode>7</cbc:TaxLevelCode><cac:TaxScheme></cac:TaxScheme></fe:PartyTaxScheme><fe:PartyLegalEntity><cbc:RegistrationName>Plastinorte S.A.S</cbc:RegistrationName></fe:PartyLegalEntity><cac:Contact><cbc:Telephone></cbc:Telephone><cbc:ElectronicMail></cbc:ElectronicMail></cac:Contact></fe:Party></fe:AccountingSupplierParty><fe:AccountingCustomerParty><cbc:AdditionalAccountID>2</cbc:AdditionalAccountID><fe:Party><cac:PartyIdentification><cbc:ID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)" schemeID="31">900979979</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>2  SH</cbc:Name></cac:PartyName><fe:PhysicalLocation><fe:Address><cbc:Department>BOGOTA, D.C.</cbc:Department><cbc:CitySubdivisionName>BOGOTA</cbc:CitySubdivisionName><cbc:CityName>BOGOTA</cbc:CityName><cac:AddressLine><cbc:Line>cll 12 a # 71 b 61</cbc:Line></cac:AddressLine><cac:Country><cbc:IdentificationCode>CO</cbc:IdentificationCode></cac:Country></fe:Address></fe:PhysicalLocation><fe:PartyTaxScheme><cbc:TaxLevelCode>False</cbc:TaxLevelCode><cac:TaxScheme></cac:TaxScheme></fe:PartyTaxScheme><fe:PartyLegalEntity><cbc:RegistrationName>2  SH</cbc:RegistrationName></fe:PartyLegalEntity></fe:Party></fe:AccountingCustomerParty><fe:TaxTotal><cbc:TaxAmount currencyID="COP">2280.00</cbc:TaxAmount><cbc:TaxEvidenceIndicator>true</cbc:TaxEvidenceIndicator><fe:TaxSubtotal><cbc:TaxableAmount currencyID="COP">12000.00</cbc:TaxableAmount><cbc:TaxAmount currencyID="COP">2280.00</cbc:TaxAmount><cbc:Percent>19.00</cbc:Percent><cac:TaxCategory><cac:TaxScheme><cbc:ID>01</cbc:ID></cac:TaxScheme></cac:TaxCategory></fe:TaxSubtotal></fe:TaxTotal><fe:TaxTotal><cbc:TaxAmount currencyID="COP">-48.00</cbc:TaxAmount><cbc:TaxEvidenceIndicator>true</cbc:TaxEvidenceIndicator><fe:TaxSubtotal><cbc:TaxableAmount currencyID="COP">0.00</cbc:TaxableAmount><cbc:TaxAmount currencyID="COP">-48.00</cbc:TaxAmount><cbc:Percent>-1.1040</cbc:Percent><cac:TaxCategory><cac:TaxScheme><cbc:ID>02</cbc:ID></cac:TaxScheme></cac:TaxCategory></fe:TaxSubtotal></fe:TaxTotal><fe:TaxTotal><cbc:TaxAmount currencyID="COP">-132.00</cbc:TaxAmount><cbc:TaxEvidenceIndicator>true</cbc:TaxEvidenceIndicator><fe:TaxSubtotal><cbc:TaxableAmount currencyID="COP">0.00</cbc:TaxableAmount><cbc:TaxAmount currencyID="COP">-132.00</cbc:TaxAmount><cbc:Percent>-1.1040</cbc:Percent><cac:TaxCategory><cac:TaxScheme><cbc:ID>03</cbc:ID></cac:TaxScheme></cac:TaxCategory></fe:TaxSubtotal></fe:TaxTotal><fe:LegalMonetaryTotal><cbc:LineExtensionAmount currencyID="COP">12000.00</cbc:LineExtensionAmount><cbc:TaxExclusiveAmount currencyID="COP">12000.00</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount currencyID="COP">0.00</cbc:TaxInclusiveAmount><cbc:AllowanceTotalAmount currencyID="COP">0.00</cbc:AllowanceTotalAmount><cbc:ChargeTotalAmount currencyID="COP">0.00</cbc:ChargeTotalAmount><cbc:PrepaidAmount currencyID="COP">0.00</cbc:PrepaidAmount><cbc:PayableAmount currencyID="COP">14280.00</cbc:PayableAmount></fe:LegalMonetaryTotal><fe:InvoiceLine><cbc:ID>1</cbc:ID><cbc:InvoicedQuantity>1.00</cbc:InvoicedQuantity><cbc:LineExtensionAmount currencyID="COP">12000.00</cbc:LineExtensionAmount><cac:AllowanceCharge><cbc:ChargeIndicator>true</cbc:ChargeIndicator><cbc:Amount currencyID="COP">0.00</cbc:Amount></cac:AllowanceCharge><fe:Item><cbc:Description>[AC-AL-7] Almohada En Fibra</cbc:Description></fe:Item><fe:Price><cbc:PriceAmount currencyID="COP">14280.00</cbc:PriceAmount></fe:Price></fe:InvoiceLine></fe:Invoice>"""
         xml_sin_firma = xml_sin_firma.replace('\n','')
         xml_sin_firma = etree.tostring(etree.fromstring(xml_sin_firma), method="c14n")
-        print '\n\n\n'
-        print 'xml_sin_firma: ', xml_sin_firma
+        print('\n\n\n')
+        print('xml_sin_firma: ', xml_sin_firma)
         refa = hashlib.new('sha256', xml_sin_firma)
         refa = refa.digest()
         refa = base64.b64encode(refa)
-        print '\n\n\n'
-        print 'refa: ', refa
+        print('\n\n\n')
+        print('refa: ', refa)
         #
         # referencia 1 o digest de keyinfo
         #clave_publica = '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'
@@ -2073,13 +2073,13 @@ RRZw04bG19spiLKEz8ZK4OYQ69zdBgou9Zlz0co57fWqWXrSql2i1u8v
         keyinfo = keyinfo % {'data_public_certificate_base' : clave_publica_64,}
         keyinfo = keyinfo.replace('\n','')
         keyinfo = etree.tostring(etree.fromstring(keyinfo), method="c14n")
-        print '\n\n\n'
-        print 'keyinfo: ', keyinfo
+        print('\n\n\n')
+        print('keyinfo: ', keyinfo)
         refb = hashlib.new('sha256', keyinfo)
         refb = refb.digest()
         refb = base64.b64encode(refb)
-        print '\n\n\n'
-        print 'refb: ', refb
+        print('\n\n\n')
+        print('refb: ', refb)
         #
         # referencia 2 o digest de signedproperties
         CertDigestDigestValue256 = hashlib.new('sha256', clave_publica)
@@ -2087,9 +2087,9 @@ RRZw04bG19spiLKEz8ZK4OYQ69zdBgou9Zlz0co57fWqWXrSql2i1u8v
         CertDigestDigestValue = base64.b64encode(CertDigestDigestValue256_digest)
         #SigningTime = self._generate_signature_signingtime()
         SigningTime = '2018-10-23T15:07:11'
-        print '\n\n\n'
-        print 'CertDigestDigestValue: ', CertDigestDigestValue
-        print 'SigningTime: ', SigningTime
+        print('\n\n\n')
+        print('CertDigestDigestValue: ', CertDigestDigestValue)
+        print('SigningTime: ', SigningTime)
         signedproperties = """
 <xades:SignedProperties xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:fe="http://www.dian.gov.co/contratos/facturaelectronica/v1" xmlns:sts="http://www.dian.gov.co/contratos/facturaelectronica/v1/Structures" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#" Id="xmldsig-88fbfc45-3be2-4c4a-83ac-0796e1bad4c5-signedprops">
 <xades:SignedSignatureProperties>
@@ -2127,13 +2127,13 @@ RRZw04bG19spiLKEz8ZK4OYQ69zdBgou9Zlz0co57fWqWXrSql2i1u8v
                                                 'CertDigestDigestValue' : CertDigestDigestValue,}
         signedproperties = signedproperties.replace('\n','')
         signedproperties = etree.tostring(etree.fromstring(signedproperties), method="c14n")
-        print '\n\n\n'
-        print 'signedproperties: ', signedproperties
+        print('\n\n\n')
+        print('signedproperties: ', signedproperties)
         refc = hashlib.new('sha256', signedproperties)
         refc = refc.digest()
         refc = base64.b64encode(refc)
-        print '\n\n\n'
-        print 'refc: ', refc
+        print('\n\n\n')
+        print('refc: ', refc)
         #
         # SignedInfo en donde va la refa, la refb y la refc y obtener el signaturevalue.
         SignedInfo = """
@@ -2164,8 +2164,8 @@ RRZw04bG19spiLKEz8ZK4OYQ69zdBgou9Zlz0co57fWqWXrSql2i1u8v
         SignedInfo = etree.tostring(etree.fromstring(SignedInfo), method="c14n")
         #SignedInfo = etree.tostring(SignedInfo,method="c14n",exclusive=False,with_comments=False,inclusive_ns_prefixes=None)
         #SignedInfo = SignedInfo.decode()
-        print '\n\n\n'
-        print 'SignedInfo: ', SignedInfo
+        print('\n\n\n')
+        print('SignedInfo: ', SignedInfo)
         #archivo_key = '/tmp/Certificado/plastinorte.com.key'
         archivo_key = '/home/odoo/Instancias/DocumentosFE/Clave3.pem'
         key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(archivo_key, 'rb').read())
@@ -2185,14 +2185,14 @@ RRZw04bG19spiLKEz8ZK4OYQ69zdBgou9Zlz0co57fWqWXrSql2i1u8v
         # asubject = cert.get_subject()
 
 
-        print '\n\n\n\n\n\n'
-        print 'pem: ', pem
-        print 'key: ', key
-        print 'cert: ', cert
-        print 'validacion: ', validacion
+        print('\n\n\n\n\n\n')
+        print('pem: ', pem)
+        print('key: ', key)
+        print('cert: ', cert)
+        print('validacion: ', validacion)
         SignatureValue = base64.b64encode(signature)
-        print '\n\n\n'
-        print 'SignatureValue: ', SignatureValue
+        print('\n\n\n')
+        print('SignatureValue: ', SignatureValue)
         #
         # SIGNATURE.
         Signature_xlm = """
@@ -2210,14 +2210,14 @@ RRZw04bG19spiLKEz8ZK4OYQ69zdBgou9Zlz0co57fWqWXrSql2i1u8v
                                     'SignatureValue' : SignatureValue,
                                     'Keyinfo' : keyinfo,
                                     'signedproperties' : signedproperties,}
-        print '\n\n\n'
-        print 'Signature_xlm: ', Signature_xlm
+        print('\n\n\n')
+        print('Signature_xlm: ', Signature_xlm)
         xml_con_firma = """<?xml version="1.0" encoding="UTF-8"?><fe:Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:clm54217="urn:un:unece:uncefact:codelist:specification:54217:2001" xmlns:clm66411="urn:un:unece:uncefact:codelist:specification:66411:2001" xmlns:clmIANAMIMEMediaType="urn:un:unece:uncefact:codelist:specification:IANAMIMEMediaType:2003" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:fe="http://www.dian.gov.co/contratos/facturaelectronica/v1" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2" xmlns:sts="http://www.dian.gov.co/contratos/facturaelectronica/v1/Structures" xmlns:udt="urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dian.gov.co/contratos/facturaelectronica/v1 http://www.dian.gov.co/micrositios/fac_electronica/documentos/XSD/r0/DIAN_UBL.xsd urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2 http://www.dian.gov.co/micrositios/fac_electronica/documentos/common/UnqualifiedDataTypeSchemaModule-2.0.xsd urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2 http://www.dian.gov.co/micrositios/fac_electronica/documentos/common/UBL-QualifiedDatatypes-2.0.xsd"><ext:UBLExtensions><ext:UBLExtension><ext:ExtensionContent><sts:DianExtensions><sts:InvoiceControl><sts:InvoiceAuthorization>9000000032442243</sts:InvoiceAuthorization><sts:AuthorizationPeriod><cbc:StartDate>2018-10-03</cbc:StartDate><cbc:EndDate>2018-12-31</cbc:EndDate></sts:AuthorizationPeriod><sts:AuthorizedInvoices><sts:Prefix>PRUE</sts:Prefix><sts:From>980000000</sts:From><sts:To>985000000</sts:To></sts:AuthorizedInvoices></sts:InvoiceControl><sts:InvoiceSource><cbc:IdentificationCode listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe" listSchemeURI="urn:oasis:names:specification:ubl:codelist:gc:CountryIdentificationCode-2.0">CO</cbc:IdentificationCode></sts:InvoiceSource><sts:SoftwareProvider><sts:ProviderID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">860062288</sts:ProviderID><sts:SoftwareID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">b28bc5bb-8a74-46a7-bb16-d3e25ca58358</sts:SoftwareID></sts:SoftwareProvider><sts:SoftwareSecurityCode schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">8a1a3aefcb472f961dbd803770001520f4e4a764d850d150bef9d6173a3d13ded68513092639a767aa76e6fb233bbc71</sts:SoftwareSecurityCode></sts:DianExtensions></ext:ExtensionContent></ext:UBLExtension><ext:UBLExtension><ext:ExtensionContent>%(SignatureFin)s</ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions><cbc:UBLVersionID>UBL 2.0</cbc:UBLVersionID><cbc:ProfileID>DIAN 1.0</cbc:ProfileID><cbc:ID>PRUE980000117</cbc:ID><cbc:UUID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)">963f8f248afe8ae9888acc4594c12804544b8355</cbc:UUID><cbc:IssueDate>2018-10-22</cbc:IssueDate><cbc:IssueTime>16:42:03</cbc:IssueTime><cbc:InvoiceTypeCode listAgencyID="195" listAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)" listSchemeURI="http://www.dian.gov.co/contratos/facturaelectronica/v1/InvoiceType">1</cbc:InvoiceTypeCode><cbc:Note></cbc:Note><cbc:DocumentCurrencyCode>COP</cbc:DocumentCurrencyCode><fe:AccountingSupplierParty><cbc:AdditionalAccountID>2</cbc:AdditionalAccountID><fe:Party><cac:PartyIdentification><cbc:ID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)" schemeID="31">860062288</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Plastinorte S.A.S</cbc:Name></cac:PartyName><fe:PhysicalLocation><fe:Address><cbc:Department>BOGOTA, D.C.</cbc:Department><cbc:CitySubdivisionName>BOGOTA</cbc:CitySubdivisionName><cbc:CityName>BOGOTA</cbc:CityName><cac:AddressLine><cbc:Line>Cra. 25 #67-34</cbc:Line></cac:AddressLine><cac:Country><cbc:IdentificationCode>CO</cbc:IdentificationCode></cac:Country></fe:Address></fe:PhysicalLocation><fe:PartyTaxScheme><cbc:TaxLevelCode>7</cbc:TaxLevelCode><cac:TaxScheme></cac:TaxScheme></fe:PartyTaxScheme><fe:PartyLegalEntity><cbc:RegistrationName>Plastinorte S.A.S</cbc:RegistrationName></fe:PartyLegalEntity><cac:Contact><cbc:Telephone></cbc:Telephone><cbc:ElectronicMail></cbc:ElectronicMail></cac:Contact></fe:Party></fe:AccountingSupplierParty><fe:AccountingCustomerParty><cbc:AdditionalAccountID>2</cbc:AdditionalAccountID><fe:Party><cac:PartyIdentification><cbc:ID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)" schemeID="31">900979979</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>2  SH</cbc:Name></cac:PartyName><fe:PhysicalLocation><fe:Address><cbc:Department>BOGOTA, D.C.</cbc:Department><cbc:CitySubdivisionName>BOGOTA</cbc:CitySubdivisionName><cbc:CityName>BOGOTA</cbc:CityName><cac:AddressLine><cbc:Line>cll 12 a # 71 b 61</cbc:Line></cac:AddressLine><cac:Country><cbc:IdentificationCode>CO</cbc:IdentificationCode></cac:Country></fe:Address></fe:PhysicalLocation><fe:PartyTaxScheme><cbc:TaxLevelCode>False</cbc:TaxLevelCode><cac:TaxScheme></cac:TaxScheme></fe:PartyTaxScheme><fe:PartyLegalEntity><cbc:RegistrationName>2  SH</cbc:RegistrationName></fe:PartyLegalEntity></fe:Party></fe:AccountingCustomerParty><fe:TaxTotal><cbc:TaxAmount currencyID="COP">2280.00</cbc:TaxAmount><cbc:TaxEvidenceIndicator>true</cbc:TaxEvidenceIndicator><fe:TaxSubtotal><cbc:TaxableAmount currencyID="COP">12000.00</cbc:TaxableAmount><cbc:TaxAmount currencyID="COP">2280.00</cbc:TaxAmount><cbc:Percent>19.00</cbc:Percent><cac:TaxCategory><cac:TaxScheme><cbc:ID>01</cbc:ID></cac:TaxScheme></cac:TaxCategory></fe:TaxSubtotal></fe:TaxTotal><fe:TaxTotal><cbc:TaxAmount currencyID="COP">-48.00</cbc:TaxAmount><cbc:TaxEvidenceIndicator>true</cbc:TaxEvidenceIndicator><fe:TaxSubtotal><cbc:TaxableAmount currencyID="COP">0.00</cbc:TaxableAmount><cbc:TaxAmount currencyID="COP">-48.00</cbc:TaxAmount><cbc:Percent>-1.1040</cbc:Percent><cac:TaxCategory><cac:TaxScheme><cbc:ID>02</cbc:ID></cac:TaxScheme></cac:TaxCategory></fe:TaxSubtotal></fe:TaxTotal><fe:TaxTotal><cbc:TaxAmount currencyID="COP">-132.00</cbc:TaxAmount><cbc:TaxEvidenceIndicator>true</cbc:TaxEvidenceIndicator><fe:TaxSubtotal><cbc:TaxableAmount currencyID="COP">0.00</cbc:TaxableAmount><cbc:TaxAmount currencyID="COP">-132.00</cbc:TaxAmount><cbc:Percent>-1.1040</cbc:Percent><cac:TaxCategory><cac:TaxScheme><cbc:ID>03</cbc:ID></cac:TaxScheme></cac:TaxCategory></fe:TaxSubtotal></fe:TaxTotal><fe:LegalMonetaryTotal><cbc:LineExtensionAmount currencyID="COP">12000.00</cbc:LineExtensionAmount><cbc:TaxExclusiveAmount currencyID="COP">12000.00</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount currencyID="COP">0.00</cbc:TaxInclusiveAmount><cbc:AllowanceTotalAmount currencyID="COP">0.00</cbc:AllowanceTotalAmount><cbc:ChargeTotalAmount currencyID="COP">0.00</cbc:ChargeTotalAmount><cbc:PrepaidAmount currencyID="COP">0.00</cbc:PrepaidAmount><cbc:PayableAmount currencyID="COP">14280.00</cbc:PayableAmount></fe:LegalMonetaryTotal><fe:InvoiceLine><cbc:ID>1</cbc:ID><cbc:InvoicedQuantity>1.00</cbc:InvoicedQuantity><cbc:LineExtensionAmount currencyID="COP">12000.00</cbc:LineExtensionAmount><cac:AllowanceCharge><cbc:ChargeIndicator>true</cbc:ChargeIndicator><cbc:Amount currencyID="COP">0.00</cbc:Amount></cac:AllowanceCharge><fe:Item><cbc:Description>[AC-AL-7] Almohada En Fibra</cbc:Description></fe:Item><fe:Price><cbc:PriceAmount currencyID="COP">14280.00</cbc:PriceAmount></fe:Price></fe:InvoiceLine></fe:Invoice>"""
         xml_con_firma = xml_con_firma.replace('\n','')
         xml_con_firma = etree.tostring(etree.fromstring(xml_con_firma), method="c14n")
         xml_con_firma = xml_con_firma % {'SignatureFin' : Signature_xlm,}        
-        print '\n\n\n'
-        print 'xml_con_firma: ', xml_con_firma
+        print('\n\n\n')
+        print('xml_con_firma: ', xml_con_firma)
         return xml_con_firma
 
 #         xml_otro = """<?xml version="1.0" encoding="UTF-8"?>

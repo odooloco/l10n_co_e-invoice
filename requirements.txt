@@ -2,7 +2,6 @@ asn1crypto==0.24.0
 cffi==1.11.5
 cryptography==2.3.1
 enum34==1.1.6
-gyp==0.1
 idna==2.7
 ipaddress==1.0.22
 keyring==10.6.0
@@ -12,11 +11,10 @@ pprint==0.1
 pybase64==0.4.0
 pycparser==2.19
 pycrypto==2.6.1
-pygobject==3.32.2
 pyOpenSSL==18.0.0
 pypng==0.0.18
 PyQRCode==1.2.1
-pyxdg==0.25 *
+pyxdg==0.25
 SecretStorage==2.3.1
 six==1.11.0
 uWSGI==2.0.17.1
